@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts } from '../../utils';
+const posts = await getPosts();
+---
+<Base title="Writing" description="Posts on product management, building things, and lessons learned.">
+  <h1>Notes from the <span class="hl">product trenches.</span></h1>
+  <p class="lede muted">How I think about product, building things, and what I'm learning along the way. Also on <a href="/rss.xml">RSS</a>.</p>
+  <PostList posts={posts} />
+</Base>
+<style>.lede { font-size: 1.2rem; max-width: 36rem; margin-bottom: 3rem; }</style>

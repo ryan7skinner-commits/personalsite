@@ -1,0 +1,18 @@
+---
+interface Props { items: string[]; }
+const { items } = Astro.props;
+const row = [...items, ...items];
+---
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    {row.map((t) => (<span>{t}<i>✦</i></span>))}
+  </div>
+</div>
+<style>
+  .marquee { overflow: hidden; background: var(--tangerine); color: var(--cherry); border-block: 3px solid var(--cherry); transform: rotate(-1.5deg); margin: 3rem -1rem; }
+  .track { display: flex; width: max-content; animation: scroll 28s linear infinite; }
+  span { font: 800 1.6rem/1 var(--display); letter-spacing: -0.02em; padding: 0.85rem 0; white-space: nowrap; }
+  i { font-style: normal; padding: 0 1.25rem; }
+  .marquee:hover .track { animation-play-state: paused; }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+</style>

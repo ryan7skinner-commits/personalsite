@@ -1,0 +1,23 @@
+---
+import { NAV, activeIndex } from '../nav';
+const i = activeIndex(Astro.url.pathname);
+const label = i === -1 ? 'Lost' : NAV[i].label;
+const pos = i === -1 ? '00' : `0${i + 1}`;
+---
+<div class="bar" transition:animate="fade">
+  <span>You're now in <b>( {label} )</b></span>
+  <span class="pos"><i aria-hidden="true"></i>{pos} / 0{NAV.length}</span>
+</div>
+<style>
+  .bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    margin-bottom: 3rem; padding: 0.55rem 1.1rem; border-radius: 999px;
+    background: var(--tangerine); color: var(--cherry);
+    font: 500 0.75rem var(--mono); letter-spacing: 0.04em; text-transform: uppercase;
+    animation: grow 0.8s cubic-bezier(.7,0,.2,1) backwards;
+    transform-origin: left;
+  }
+  .pos { display: flex; align-items: center; gap: 0.45rem; white-space: nowrap; }
+  .pos i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--cherry); }
+  @keyframes grow { from { clip-path: inset(0 100% 0 0 round 999px); } to { clip-path: inset(0 0 0 0 round 999px); } }
+</style>
