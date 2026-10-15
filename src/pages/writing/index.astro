@@ -1,0 +1,11 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts } from '../../utils';
+const posts = await getPosts();
+---
+<Base title="Writing" description="Posts on product management, building things, and lessons learned.">
+  <h1>Writing</h1>
+  <p class="muted">Notes on product, building things, and what I'm learning. <a href="/rss.xml">RSS</a></p>
+  <PostList posts={posts} />
+</Base>

@@ -1,0 +1,28 @@
+---
+import { render } from 'astro:content';
+import Article from '../../layouts/Article.astro';
+import { getCaseStudies } from '../../utils';
+
+export async function getStaticPaths() {
+  const items = await getCaseStudies();
+  return items.map((item) => ({ params: { id: item.id }, props: { item } }));
+}
+const { item } = Astro.props;
+const { Content } = await render(item);
+const d = item.data;
+const meta = [
+  d.role && { label: 'Role', value: d.role },
+  d.outcome && { label: 'Outcome', value: d.outcome },
+].filter(Boolean) as { label: string; value: string }[];
+---
+<Article
+  title={d.title}
+  description={d.summary}
+  date={d.date}
+  tags={d.tags}
+  eyebrow={d.kind === 'personal' ? 'Personal project' : 'Professional case study'}
+  meta={meta}
+>
+  <Content />
+  {d.link && <p><a href={d.link}>See the project →</a></p>}
+</Article>

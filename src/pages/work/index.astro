@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import WorkList from '../../components/WorkList.astro';
+import { getCaseStudies } from '../../utils';
+const all = await getCaseStudies();
+const personal = all.filter((i) => i.data.kind === 'personal');
+const professional = all.filter((i) => i.data.kind === 'professional');
+---
+<Base title="Work" description="Case studies from personal projects and professional work.">
+  <h1>Work</h1>
+  <p class="muted">
+    Case studies from things I've built on my own, and abstracted stories from my day job.
+    Professional case studies leave out company names and confidential details.
+  </p>
+  <h2>Personal projects</h2>
+  <WorkList items={personal} />
+  <h2>Professional</h2>
+  <WorkList items={professional} />
+</Base>

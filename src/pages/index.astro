@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import PostList from '../components/PostList.astro';
+import WorkList from '../components/WorkList.astro';
+import { getPosts, getCaseStudies } from '../utils';
+
+const posts = (await getPosts()).slice(0, 3);
+const work = (await getCaseStudies()).slice(0, 3);
+---
+<Base>
+  <section class="intro">
+    <h1>Hi, I'm Ryan.</h1>
+    <p>
+      I'm a Product Manager. I like turning messy problems into products people actually use.
+      This is where I write about how I work and share the projects behind it.
+    </p>
+    <p><a href="/about/">More about me →</a></p>
+  </section>
+
+  <div class="section-head"><h2>Recent writing</h2><a class="small" href="/writing/">All posts</a></div>
+  <PostList posts={posts} />
+
+  <div class="section-head"><h2>Case studies</h2><a class="small" href="/work/">All work</a></div>
+  <WorkList items={work} />
+</Base>
+<style>
+  .intro { margin-top: 2rem; }
+  .intro p { font-size: 1.1rem; }
+</style>

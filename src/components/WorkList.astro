@@ -1,0 +1,17 @@
+---
+import type { CollectionEntry } from 'astro:content';
+interface Props { items: CollectionEntry<'work'>[]; }
+const { items } = Astro.props;
+---
+<ul class="list">
+  {items.map((item) => (
+    <li>
+      <a class="title" href={`/work/${item.id}/`}>{item.data.title}</a>
+      <p class="muted">{item.data.summary}</p>
+      <p class="small muted">
+        <span class="tag">{item.data.kind === 'personal' ? 'Personal project' : 'Professional'}</span>
+        {item.data.role}
+      </p>
+    </li>
+  ))}
+</ul>
