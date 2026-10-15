@@ -31,4 +31,6 @@ Light and dark mode follow the visitor's system setting, and all motion respects
 
 ## Deploying
 
-Cloudflare Pages builds every push to `main`. Build command `npm run build`, output directory `dist`.
+Hosted as a Cloudflare Worker serving static assets (config in `wrangler.jsonc`).
+Workers Builds runs on every push to `main`: build command `npm run build`, deploy command
+`npx wrangler deploy`. The Worker's name in Cloudflare must match `name` in `wrangler.jsonc`.
