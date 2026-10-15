@@ -2,28 +2,64 @@
 import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
 import WorkList from '../components/WorkList.astro';
+import Marquee from '../components/Marquee.astro';
 import { getPosts, getCaseStudies } from '../utils';
 
 const posts = (await getPosts()).slice(0, 3);
-const work = (await getCaseStudies()).slice(0, 3);
+const work = (await getCaseStudies()).slice(0, 4);
 ---
 <Base>
-  <section class="intro">
-    <h1>Hi, I'm Ryan.</h1>
-    <p>
-      I'm a Product Manager. I like turning messy problems into products people actually use.
-      This is where I write about how I work and share the projects behind it.
+  <section class="hero">
+    <p class="eyebrow">Product Manager · ryanskinner.me</p>
+    <h1>
+      Hi, I'm Ryan.<br />
+      I turn <span class="scribble">messy problems</span> into products people{' '}
+      <span class="hl">actually use.</span>
+    </h1>
+    <p class="lede">
+      This is my corner of the internet: how I think about product, the things I build on the side,
+      and stories from the work I do day to day.
     </p>
-    <p><a href="/about/">More about me →</a></p>
+    <div class="ctas">
+      <a class="btn primary" href="/work/">See my work</a>
+      <a class="btn" href="/about/">About me</a>
+    </div>
   </section>
 
-  <div class="section-head"><h2>Recent writing</h2><a class="small" href="/writing/">All posts</a></div>
-  <PostList posts={posts} />
+  <Marquee items={['Product strategy', 'Discovery', 'Shipping', 'Side projects', 'Writing', 'Experiments']} />
 
-  <div class="section-head"><h2>Case studies</h2><a class="small" href="/work/">All work</a></div>
-  <WorkList items={work} />
+  <section>
+    <div class="head"><h2>Case studies</h2><a class="eyebrow" href="/work/">All work →</a></div>
+    <WorkList items={work} />
+  </section>
+
+  <section>
+    <div class="head"><h2>Writing</h2><a class="eyebrow" href="/writing/">All posts →</a></div>
+    <PostList posts={posts} />
+  </section>
 </Base>
 <style>
-  .intro { margin-top: 2rem; }
-  .intro p { font-size: 1.1rem; }
+  .hero { padding: 2rem 0 1rem; }
+  .hero h1 { font-size: clamp(2.8rem, 6.5vw, 5.6rem); max-width: 15.5ch; }
+  .scribble { position: relative; white-space: nowrap; }
+  .scribble::after {
+    content: ''; position: absolute; left: -2%; right: -2%; bottom: 0.02em; height: 0.28em; z-index: -1;
+    background: var(--tangerine); border-radius: 0.2em; transform: rotate(-1.5deg) scaleX(0); transform-origin: left;
+    animation: swipe 0.7s 0.4s cubic-bezier(.6,0,.2,1) forwards; opacity: 0.85;
+  }
+  .scribble { isolation: isolate; }
+  @keyframes swipe { to { transform: rotate(-1.5deg) scaleX(1); } }
+  .lede { font-size: 1.3rem; max-width: 34rem; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 2rem; }
+  .btn {
+    display: inline-block; padding: 0.85rem 1.5rem; border: 3px solid var(--line); border-radius: 999px;
+    font: 700 1.05rem var(--display); text-decoration: none; box-shadow: 4px 4px 0 var(--line); transition: 0.2s;
+  }
+  .btn.primary { background: var(--tangerine); color: var(--cherry); border-color: var(--cherry); box-shadow: 4px 4px 0 var(--cherry); }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--line); }
+  .btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--line); }
+  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 4.5rem 0 1.75rem; }
+  .head h2 { margin: 0; }
+  .head .eyebrow { margin: 0; text-decoration: none; }
+  .head .eyebrow:hover { color: var(--tangerine); }
 </style>

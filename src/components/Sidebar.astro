@@ -1,0 +1,133 @@
+---
+import { LINKS, SITE_TITLE, NOW } from '../consts';
+
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/about/', label: 'About' },
+  { href: '/writing/', label: 'Writing' },
+  { href: '/work/', label: 'Work' },
+];
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+<aside class="sidebar" transition:animate="none">
+  <div class="top">
+    <a class="brand" href="/" aria-label={`${SITE_TITLE}, home`}>
+      <svg class="badge" viewBox="0 0 100 100" aria-hidden="true">
+        <defs><path id="ring" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0" /></defs>
+        <text><textPath href="#ring">PRODUCT · BUILDER · WRITER · PRODUCT · BUILDER ·</textPath></text>
+      </svg>
+      <span class="mono">RS</span>
+    </a>
+    <a class="name" href="/">{SITE_TITLE}<span>Product Manager</span></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="site-nav">
+      <span class="sr-only">Menu</span><span class="bars" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <nav id="site-nav" aria-label="Main">
+    <ol>
+      {nav.map((item, i) => (
+        <li>
+          <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+            {isActive(item.href) && <span class="pill" transition:name="nav-pill" aria-hidden="true" />}
+            <span class="num">0{i}</span>
+            <span class="label">{item.label}</span>
+            <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+
+  <div class="foot">
+    <p class="now"><span class="dot" aria-hidden="true"></span><span><b>Now:</b> {NOW}</span></p>
+    <p class="links">
+      <a href={LINKS.email}>Email</a>
+      <a href={LINKS.linkedin}>LinkedIn</a>
+      <a href={LINKS.github}>GitHub</a>
+      <a href="/rss.xml">RSS</a>
+    </p>
+  </div>
+</aside>
+
+<script>
+  function setup() {
+    const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+    if (!btn || !sidebar) return;
+    btn.addEventListener('click', () => {
+      const open = sidebar.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('astro:page-load', setup);
+</script>
+
+<style>
+  .sidebar {
+    --fg: var(--blue);
+    position: fixed; inset: 0 auto 0 0; width: var(--sidebar); z-index: 10;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 1.75rem 1.5rem; background: var(--cherry); color: var(--fg);
+    border-right: 3px solid var(--tangerine);
+  }
+  .top { display: flex; align-items: center; gap: 0.9rem; }
+  .name { font: 800 1.35rem/1 var(--display); letter-spacing: -0.03em; text-decoration: none; color: var(--fg); }
+  .name span { display: block; margin-top: 0.35rem; font: 500 0.68rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--tangerine); }
+  .brand { position: relative; display: grid; place-items: center; width: 5.5rem; height: 5.5rem; text-decoration: none; color: var(--fg); }
+  .badge { position: absolute; inset: 0; width: 100%; height: 100%; animation: spin 18s linear infinite; fill: var(--fg); font: 600 9.5px var(--mono); letter-spacing: 0.08em; }
+  .brand:hover .badge { animation-duration: 4s; fill: var(--tangerine); }
+  .brand .mono { display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; background: var(--tangerine); color: var(--cherry); font: 800 1.15rem var(--display); letter-spacing: -0.04em; transition: transform 0.3s; }
+  .brand:hover .mono { transform: rotate(-12deg) scale(1.08); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  nav ol { list-style: none; margin: 0; padding: 0; }
+  nav a {
+    position: relative; isolation: isolate; display: flex; align-items: baseline; gap: 0.7rem;
+    padding: 0.35rem 0.85rem; margin: 0 -0.85rem; border-radius: 14px; text-decoration: none; color: var(--fg);
+    font: 800 2.35rem/1.15 var(--display); letter-spacing: -0.035em; font-variation-settings: 'opsz' 96, 'wdth' 85;
+    transition: transform 0.25s cubic-bezier(.3,1.6,.5,1), color 0.2s;
+  }
+  nav a:hover { transform: translateX(0.5rem); color: var(--tangerine); }
+  nav a[aria-current='page'] { color: var(--cherry); }
+  nav a[aria-current='page']:hover { transform: none; }
+  .pill { position: absolute; inset: 0; z-index: -1; background: var(--tangerine); border-radius: 14px; }
+  .num { font: 500 0.7rem var(--mono); opacity: 0.7; transform: translateY(-1.1rem); }
+  .arrow { font-size: 1.3rem; opacity: 0; transform: translate(-0.4rem, 0.3rem); transition: 0.2s; }
+  nav a:hover .arrow { opacity: 1; transform: none; }
+
+  .foot { font-size: 0.85rem; }
+  .now { display: flex; gap: 0.6rem; align-items: baseline; margin: 0 0 1rem; line-height: 1.4; }
+  .dot { flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--tangerine); box-shadow: 0 0 0 0 var(--tangerine); animation: pulse 2s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 0.6rem transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .links { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .links a { color: var(--fg); }
+  .menu-btn { display: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  @media (max-width: 899px) {
+    .sidebar { position: sticky; top: 0; width: auto; inset: auto; padding: 0.75rem 1rem; border-right: 0; border-bottom: 3px solid var(--tangerine); }
+    .brand { width: 3.75rem; height: 3.75rem; }
+    .brand .mono { width: 2rem; height: 2rem; font-size: 0.85rem; }
+    .badge { font-size: 9px; }
+    .menu-btn {
+      margin-left: auto; display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%;
+      background: var(--tangerine); border: 0; cursor: pointer;
+    }
+    .bars, .bars::before, .bars::after { display: block; width: 1.2rem; height: 2.5px; background: var(--cherry); border-radius: 2px; transition: 0.25s; }
+    .bars { position: relative; }
+    .bars::before, .bars::after { content: ''; position: absolute; left: 0; }
+    .bars::before { top: -6px; } .bars::after { top: 6px; }
+    .open .bars { background: transparent; }
+    .open .bars::before { top: 0; transform: rotate(45deg); }
+    .open .bars::after { top: 0; transform: rotate(-45deg); }
+    nav, .foot { display: none; }
+    .sidebar.open { position: fixed; inset: 0; justify-content: flex-start; gap: 2.5rem; }
+    .open nav, .open .foot { display: block; }
+    .open .foot { margin-top: auto; }
+    .open nav a { font-size: 3rem; }
+  }
+</style>

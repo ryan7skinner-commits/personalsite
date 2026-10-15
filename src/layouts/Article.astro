@@ -9,35 +9,42 @@ interface Props {
   updated?: Date;
   tags?: string[];
   eyebrow?: string;
+  back?: { href: string; label: string };
   meta?: { label: string; value: string }[];
 }
-const { title, description, date, updated, tags = [], eyebrow, meta = [] } = Astro.props;
+const { title, description, date, updated, tags = [], eyebrow, back, meta = [] } = Astro.props;
 ---
 <Base title={title} description={description}>
   <article>
     <header class="head">
-      {eyebrow && <p class="small muted eyebrow">{eyebrow}</p>}
+      {back && <a class="eyebrow back" href={back.href}>← {back.label}</a>}
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
       <h1>{title}</h1>
-      <p class="muted lede">{description}</p>
-      <p class="small muted">
+      <p class="lede">{description}</p>
+      <p class="eyebrow muted">
         <time datetime={date.toISOString()}>{formatDate(date)}</time>
         {updated && <span> · updated {formatDate(updated)}</span>}
       </p>
       {meta.length > 0 && (
-        <dl class="meta small">
-          {meta.map((m) => (<div><dt class="muted">{m.label}</dt><dd>{m.value}</dd></div>))}
+        <dl class="meta">
+          {meta.map((m) => (<div><dt class="eyebrow">{m.label}</dt><dd>{m.value}</dd></div>))}
         </dl>
       )}
-      {tags.length > 0 && <p>{tags.map((t) => <span class="tag">{t}</span>)}</p>}
+      {tags.length > 0 && <p>{tags.map((t) => <span class="chip">{t}</span>)}</p>}
     </header>
     <div class="prose"><slot /></div>
   </article>
 </Base>
 <style>
-  .head { margin: 1rem 0 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-  .eyebrow { text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.5rem; }
-  .lede { font-size: 1.1rem; margin: 0 0 0.75rem; }
-  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; margin: 1rem 0; }
-  .meta dt { font-size: 0.8rem; }
-  .meta dd { margin: 0; }
+  .head { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 3px solid var(--line); }
+  .back { display: inline-block; margin-bottom: 2rem; text-decoration: none; }
+  .back:hover { color: var(--tangerine); }
+  .head h1 { font-size: clamp(2.6rem, 6vw, 4.8rem); max-width: 18ch; }
+  .lede { font-size: 1.35rem; max-width: 36rem; margin: 0 0 1.25rem; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .meta div { padding: 1rem 1.25rem; border-radius: 14px; background: var(--tangerine); color: var(--cherry); }
+  .meta dt { margin: 0 0 0.3rem; }
+  .meta dd { margin: 0; font: 700 1.15rem/1.25 var(--display); }
+  .prose :global(h2) { font-size: 2rem; }
+  .prose :global(h2)::before { content: '✦ '; color: var(--tangerine); }
 </style>

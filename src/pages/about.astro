@@ -1,22 +1,36 @@
 ---
 import Base from '../layouts/Base.astro';
 import { LINKS } from '../consts';
+const principles = [
+  { t: 'Placeholder principle', d: 'One or two sentences on something you believe about building products.' },
+  { t: 'Another principle', d: 'How it shows up in the way you work with teams.' },
+  { t: 'And one more', d: 'Keep these short and specific. Three is plenty.' },
+];
 ---
 <Base title="About" description="About Ryan Skinner, Product Manager.">
-  <h1>About</h1>
-  <p>
-    Placeholder: a few paragraphs on who you are, the kinds of products and teams you've worked
-    with, and what you care about as a PM.
-  </p>
+  <p class="eyebrow">01 · About</p>
+  <h1>A bit about <span class="hl">me.</span></h1>
+  <div class="prose">
+    <p>
+      Placeholder: a few paragraphs on who you are, the kinds of products and teams you've worked
+      with, and what you care about as a PM.
+    </p>
+  </div>
   <h2>How I work</h2>
-  <ul>
-    <li>Placeholder: a principle you hold</li>
-    <li>Placeholder: another one</li>
-    <li>Placeholder: and one more</li>
-  </ul>
-  <h2>Get in touch</h2>
-  <p>
+  <ol class="principles">
+    {principles.map((p, i) => (
+      <li><span class="n">0{i + 1}</span><b>{p.t}</b><span class="muted">{p.d}</span></li>
+    ))}
+  </ol>
+  <h2>Say hello</h2>
+  <p class="prose">
     The best way to reach me is <a href={LINKS.email}>email</a>, or find me on
     <a href={LINKS.linkedin}>LinkedIn</a>.
   </p>
 </Base>
+<style>
+  .principles { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+  .principles li { display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem; border: 3px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); }
+  .principles b { font: 800 1.4rem/1.1 var(--display); letter-spacing: -0.02em; }
+  .n { font: 800 2.6rem/1 var(--display); color: var(--tangerine); }
+</style>

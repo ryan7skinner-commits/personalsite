@@ -22,6 +22,7 @@ const meta = [
   tags={d.tags}
   eyebrow={d.kind === 'personal' ? 'Personal project' : 'Professional case study'}
   meta={meta}
+  back={{ href: "/work/", label: "All work" }}
 >
   <Content />
   {d.link && <p><a href={d.link}>See the project →</a></p>}

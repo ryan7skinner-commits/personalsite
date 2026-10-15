@@ -4,12 +4,33 @@ import { formatDate } from '../utils';
 interface Props { posts: CollectionEntry<'writing'>[]; }
 const { posts } = Astro.props;
 ---
-<ul class="list">
+<ol class="posts">
   {posts.map((post) => (
     <li>
-      <a class="title" href={`/writing/${post.id}/`}>{post.data.title}</a>
-      <p class="muted">{post.data.description}</p>
-      <p class="small muted"><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time></p>
+      <a href={`/writing/${post.id}/`}>
+        <time class="eyebrow" datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+        <span class="t">{post.data.title}</span>
+        <span class="d muted">{post.data.description}</span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
     </li>
   ))}
-</ul>
+</ol>
+<style>
+  .posts { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--line); }
+  li { border-bottom: 2px solid var(--line); }
+  a { display: grid; grid-template-columns: 8.5rem 1fr auto; gap: 0.25rem 1.5rem; align-items: baseline; padding: 1.4rem 0.75rem; text-decoration: none; transition: background 0.2s, padding 0.25s; }
+  a:hover { background: var(--tangerine); color: var(--cherry); padding-left: 1.5rem; }
+  a:hover .d { color: var(--cherry); }
+  .eyebrow { margin: 0; grid-row: span 2; }
+  .t { font: 750 1.6rem/1.1 var(--display); letter-spacing: -0.025em; }
+  .d { grid-column: 2; }
+  .go { grid-row: 1 / span 2; grid-column: 3; font-size: 1.6rem; transition: transform 0.25s; }
+  a:hover .go { transform: translateX(0.35rem) rotate(-45deg); }
+  @media (max-width: 640px) {
+    a { grid-template-columns: 1fr auto; }
+    .eyebrow { grid-row: auto; grid-column: 1; }
+    .d { grid-column: 1; }
+    .go { grid-row: 1 / span 3; grid-column: 2; }
+  }
+</style>
