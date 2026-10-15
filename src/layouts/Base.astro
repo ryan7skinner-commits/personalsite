@@ -3,6 +3,7 @@ import { ClientRouter } from 'astro:transitions';
 import BaseHead from '../components/BaseHead.astro';
 import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
+import SectionBar from '../components/SectionBar.astro';
 
 interface Props { title?: string; description?: string; }
 const { title, description } = Astro.props;
@@ -16,8 +17,9 @@ const { title, description } = Astro.props;
   <body>
     <Sidebar />
     <div class="page">
-      <main transition:animate="slide">
-        <slot />
+      <main>
+        <SectionBar />
+        <div transition:animate="slide"><slot /></div>
       </main>
       <Footer />
     </div>
@@ -25,9 +27,8 @@ const { title, description } = Astro.props;
 </html>
 <style>
   .page { margin-left: var(--sidebar); min-height: 100vh; display: flex; flex-direction: column; overflow-x: clip; }
-  main { flex: 1; width: 100%; max-width: 66rem; padding: 4rem clamp(1.25rem, 5vw, 4.5rem) 2rem; }
+  main { flex: 1; width: 100%; max-width: 66rem; padding: 1.25rem clamp(1.25rem, 5vw, 4.5rem) 2rem; }
   @media (max-width: 899px) {
     .page { margin-left: 0; }
-    main { padding-top: 2.5rem; }
   }
 </style>
