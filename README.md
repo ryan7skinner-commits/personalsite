@@ -29,6 +29,10 @@ Tangerine `#FF5C34`, Black Cherry `#351E28`, Cool Blue `#D7EFFF`. Type is Bricol
 Light and dark mode follow the visitor's system setting, and all motion respects
 `prefers-reduced-motion`.
 
+The design process (exploration, screenshot critique loop, imagery/video/motion rules and the
+pre-ship checklist) lives in `.claude/skills/site-design/`. `scripts/shoot.sh` screenshots pages
+at desktop and mobile sizes in light and dark mode.
+
 ## Deploying
 
 Hosted as a Cloudflare Worker serving static assets (config in `wrangler.jsonc`).
