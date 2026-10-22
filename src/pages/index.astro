@@ -4,41 +4,38 @@ import Base from '../layouts/Base.astro';
 import { LINKS, NOW, SITE_TITLE } from '../consts';
 import { SECTION_NOTES, itemNote } from '../notes';
 import { getPosts, getCaseStudies } from '../utils';
-import glassDay from '../assets/wall/glass-day.jpg';
-import glassNight from '../assets/wall/glass-night.jpg';
+import studio from '../assets/wall/studio.jpg';
 
 const work = (await getCaseStudies()).slice(0, 2);
 const post = (await getPosts())[0];
 
-// The glass wall: a still per colour scheme (art-directed <picture>), with an ambient loop on top.
+// The studio behind the glass board: a still, with an ambient loop on top on desktop.
 const widths = [960, 1600, 2400];
 const srcset = async (src: ImageMetadata, format: 'avif' | 'webp') =>
   (await Promise.all(widths.map((w) => getImage({ src, width: w, format, quality: 62 }))))
     .map((img, i) => `${img.src} ${widths[i]}w`).join(', ');
-const fallback = await getImage({ src: glassDay, width: 1600, format: 'jpg', quality: 70 });
+const fallback = await getImage({ src: studio, width: 1600, format: 'jpg', quality: 70 });
 const sources = [
-  { media: '(prefers-color-scheme: dark)', type: 'image/avif', srcset: await srcset(glassNight, 'avif') },
-  { media: '(prefers-color-scheme: dark)', type: 'image/webp', srcset: await srcset(glassNight, 'webp') },
-  { type: 'image/avif', srcset: await srcset(glassDay, 'avif') },
-  { type: 'image/webp', srcset: await srcset(glassDay, 'webp') },
+  { type: 'image/avif', srcset: await srcset(studio, 'avif') },
+  { type: 'image/webp', srcset: await srcset(studio, 'webp') },
 ];
 ---
 <Base wall>
   <div class="wall" data-wall>
     <div class="glass" aria-hidden="true">
       <picture>
-        {sources.map((s) => <source media={s.media} type={s.type} srcset={s.srcset} sizes="100vw" />)}
+        {sources.map((s) => <source type={s.type} srcset={s.srcset} sizes="100vw" />)}
         <img src={fallback.src} alt="" width="2400" height="1340" fetchpriority="high" decoding="async" />
       </picture>
       <video muted loop playsinline preload="none" disablepictureinpicture tabindex="-1">
-        <source media="(prefers-color-scheme: dark)" src="/video/glass-night.webm" type="video/webm" />
-        <source media="(prefers-color-scheme: dark)" src="/video/glass-night.mp4" type="video/mp4" />
-        <source src="/video/glass-day.webm" type="video/webm" />
-        <source src="/video/glass-day.mp4" type="video/mp4" />
+        <source src="/video/studio.webm" type="video/webm" />
+        <source src="/video/studio.mp4" type="video/mp4" />
       </video>
-      <div class="sheen"></div>
     </div>
 
+    <div class="board">
+    <span class="bolt tl" aria-hidden="true"></span><span class="bolt tr" aria-hidden="true"></span>
+    <span class="bolt bl" aria-hidden="true"></span><span class="bolt br" aria-hidden="true"></span>
     <main class="stage">
       <script is:inline>
         // Play the "writing on the wall" intro once per visit, not every time you come back.
@@ -152,6 +149,11 @@ const sources = [
         </div>
       </section>
     </main>
+    <div class="tray" aria-hidden="true">
+      <span class="marker cherry"></span><span class="marker tangerine"></span><span class="marker brick"></span>
+      <span class="eraser"></span>
+    </div>
+    </div>
   </div>
 </Base>
 
@@ -281,12 +283,12 @@ const sources = [
     --ink: var(--cherry);
     --ink-2: var(--tangerine);
     --ink-red: var(--brick);
-    --wash: color-mix(in oklab, var(--blue) 46%, transparent);
+    --edge: clamp(0.6rem, 3vw, 3rem);
     --px: 0; --py: 0;
-    position: relative; min-height: 100svh; overflow: clip; color: var(--ink);
-  }
-  @media (prefers-color-scheme: dark) {
-    .wall { --ink: #f3fbff; --ink-2: var(--tangerine); --ink-red: var(--tangerine); --wash: rgb(28 10 20 / 0.28); }
+    /* The wall is always daylight: the studio photo and the marker ink only work light. */
+    color-scheme: light;
+    position: relative; min-height: 100svh; overflow: clip; color: var(--ink); background: var(--blue);
+    padding: var(--edge) var(--edge) calc(var(--edge) + 2.5rem);
   }
   .glass { position: fixed; inset: -24px; z-index: 0; pointer-events: none; }
   .glass picture, .glass img, .glass video {
@@ -294,15 +296,47 @@ const sources = [
     transform: translate(calc(var(--px) * -18px), calc(var(--py) * -12px));
     transition: transform 1.2s cubic-bezier(.2,.7,.2,1);
   }
-  .glass img, .glass video { filter: saturate(0.8); }
   .glass video { opacity: 0; transition: opacity 1.2s, transform 1.2s cubic-bezier(.2,.7,.2,1); }
   .glass video:global(.on) { opacity: 1; }
-  /* The glass itself: a faint wash so the ink reads, plus two long reflections. */
-  .sheen {
-    position: absolute; inset: 0;
+  /* The glass board: a frosted pane standing off the studio wall on four steel bolts, with a marker
+     tray along the bottom. The room looks sharper around the board than through it, which is what
+     makes it read as a board in a room rather than a window. */
+  .board {
+    position: relative; z-index: 1; border-radius: 10px;
     background:
-      linear-gradient(112deg, transparent 12%, rgb(255 255 255 / 0.07) 20%, transparent 30%),
-      var(--wash);
+      linear-gradient(115deg, transparent 8%, rgb(255 255 255 / 0.22) 14%, transparent 22%, transparent 70%, rgb(255 255 255 / 0.14) 76%, transparent 80%),
+      rgb(246 252 255 / 0.5);
+    -webkit-backdrop-filter: blur(9px) saturate(1.1); backdrop-filter: blur(9px) saturate(1.1);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.9),
+      inset 0 0 0 6px rgb(200 232 222 / 0.45),
+      inset 0 0 0 7px rgb(255 255 255 / 0.5),
+      0 30px 50px -28px rgb(35 15 25 / 0.45),
+      0 2px 6px rgb(35 15 25 / 0.12);
+  }
+  .bolt {
+    position: absolute; z-index: 3; width: 1.15rem; height: 1.15rem; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff, #c9cfd3 45%, #8d959b 100%);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 2px 4px rgb(35 15 25 / 0.35);
+  }
+  .tl { top: 1.1rem; left: 1.1rem; } .tr { top: 1.1rem; right: 1.1rem; }
+  .bl { bottom: 1.1rem; left: 1.1rem; } .br { bottom: 1.1rem; right: 1.1rem; }
+  .tray {
+    position: absolute; z-index: 3; left: 50%; bottom: -0.9rem; translate: -50% 0; width: min(36rem, 46%); height: 0.9rem;
+    border-radius: 2px 2px 5px 5px; display: flex; align-items: flex-end; justify-content: center; gap: 1.1rem; padding: 0 1rem;
+    background: linear-gradient(#f4f6f7, #b9c1c6); box-shadow: 0 6px 10px -4px rgb(35 15 25 / 0.4);
+  }
+  .marker {
+    --cap: var(--cherry);
+    position: relative; bottom: 0.55rem; width: 6.2rem; height: 0.85rem; border-radius: 0.45rem 0.2rem 0.2rem 0.45rem;
+    background: linear-gradient(90deg, var(--cap) 0 28%, #fafafa 28% 31%, #f1f1ee 31%);
+    box-shadow: 0 2px 2px rgb(35 15 25 / 0.3), inset 0 -2px 0 rgb(0 0 0 / 0.08); rotate: 2deg;
+  }
+  .marker.tangerine { --cap: var(--tangerine); rotate: -3deg; }
+  .marker.brick { --cap: var(--brick); rotate: 1deg; }
+  .eraser {
+    position: relative; bottom: 0.55rem; width: 4.2rem; height: 1.2rem; border-radius: 3px;
+    background: linear-gradient(var(--cherry) 0 62%, #e8e2da 62%); box-shadow: 0 2px 3px rgb(35 15 25 / 0.35);
   }
 
   /* Last session's marker, not quite wiped off. */
@@ -315,8 +349,8 @@ const sources = [
 
   /* ---------- the stage: three clusters of notes around the intro ---------- */
   .stage {
-    position: relative; z-index: 1; min-height: max(100svh, 44rem);
-    display: grid; gap: 0 3.5vw; padding: 5.5vh 4.5vw 4vh;
+    position: relative; z-index: 1; min-height: max(calc(100svh - 2 * var(--edge) - 2.5rem), 34rem);
+    display: grid; gap: 0 3.5vw; padding: max(4.5vh, 2.5rem) 4vw max(4vh, 2.5rem);
     grid-template-columns: 1.15fr 0.85fr 1.3fr;
     grid-template-rows: auto 1fr;
     grid-template-areas: 'intro who built' 'say sketch thinking';
@@ -442,8 +476,14 @@ const sources = [
   @media (max-width: 899px) {
     .stage {
       grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: 'intro' 'who' 'built' 'thinking' 'say';
-      gap: 3.25rem; padding: 2.5rem 1.25rem 4rem;
+      gap: 3.25rem; padding: 2.75rem 1.25rem 4rem;
     }
+    .tray { width: 78%; gap: 0.6rem; }
+    .marker { width: 4.2rem; }
+    .eraser { width: 3rem; }
+    .bolt { width: 0.85rem; height: 0.85rem; }
+    .tl, .tr { top: 0.7rem; } .bl, .br { bottom: 0.7rem; }
+    .tl, .bl { left: 0.7rem; } .tr, .br { right: 0.7rem; }
     .thinking { padding-left: 0; }
     .intro h1 { font-size: clamp(2.9rem, 14vw, 4.5rem); }
     .tag { font-size: clamp(1.7rem, 8vw, 2.3rem); }

@@ -31,8 +31,9 @@ Light and dark mode follow the visitor's system setting, and all motion respects
 
 The homepage is a glass wall in an office: marker writing on the glass and sticky notes you can drag
 around or grab. Grabbing a note grows it to fill the screen and it becomes the next page's header (matched by
-view-transition name, see `src/notes.ts` and `src/components/NoteHead.astro`). The glass is a generated still per
-colour scheme in `src/assets/wall/` with a short ambient loop in `public/video/` (desktop only, off with reduced motion).
+view-transition name, see `src/notes.ts` and `src/components/NoteHead.astro`). The wall is a frosted glass board
+standing in a studio: a generated photo in `src/assets/wall/` with a short ambient loop in `public/video/`
+(desktop only, off with reduced motion). The homepage is light-only by design.
 
 The design process (exploration, screenshot critique loop, imagery/video/motion rules and the
 pre-ship checklist) lives in `.claude/skills/site-design/`. `scripts/shoot.sh` screenshots pages
