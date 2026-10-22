@@ -1,65 +1,464 @@
 ---
+import { getImage } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import PostList from '../components/PostList.astro';
-import WorkList from '../components/WorkList.astro';
-import Marquee from '../components/Marquee.astro';
+import { LINKS, NOW, SITE_TITLE } from '../consts';
+import { SECTION_NOTES, itemNote } from '../notes';
 import { getPosts, getCaseStudies } from '../utils';
+import glassDay from '../assets/wall/glass-day.jpg';
+import glassNight from '../assets/wall/glass-night.jpg';
 
-const posts = (await getPosts()).slice(0, 3);
-const work = (await getCaseStudies()).slice(0, 4);
+const work = (await getCaseStudies()).slice(0, 2);
+const post = (await getPosts())[0];
+
+// The glass wall: a still per colour scheme (art-directed <picture>), with an ambient loop on top.
+const widths = [960, 1600, 2400];
+const srcset = async (src: ImageMetadata, format: 'avif' | 'webp') =>
+  (await Promise.all(widths.map((w) => getImage({ src, width: w, format, quality: 62 }))))
+    .map((img, i) => `${img.src} ${widths[i]}w`).join(', ');
+const fallback = await getImage({ src: glassDay, width: 1600, format: 'jpg', quality: 70 });
+const sources = [
+  { media: '(prefers-color-scheme: dark)', type: 'image/avif', srcset: await srcset(glassNight, 'avif') },
+  { media: '(prefers-color-scheme: dark)', type: 'image/webp', srcset: await srcset(glassNight, 'webp') },
+  { type: 'image/avif', srcset: await srcset(glassDay, 'avif') },
+  { type: 'image/webp', srcset: await srcset(glassDay, 'webp') },
+];
 ---
-<Base>
-  <section class="hero">
-    <p class="eyebrow">Product Manager · ryanskinner.me</p>
-    <h1>
-      Hi, I'm Ryan.<br />
-      I turn <span class="scribble">messy problems</span> into products people{' '}
-      <span class="hl">actually use.</span>
-    </h1>
-    <p class="lede">
-      This is my corner of the internet: how I think about product, the things I build on the side,
-      and stories from the work I do day to day.
-    </p>
-    <div class="ctas">
-      <a class="btn primary" href="/work/">See my work</a>
-      <a class="btn" href="/about/">About me</a>
+<Base wall>
+  <div class="wall" data-wall>
+    <div class="glass" aria-hidden="true">
+      <picture>
+        {sources.map((s) => <source media={s.media} type={s.type} srcset={s.srcset} sizes="100vw" />)}
+        <img src={fallback.src} alt="" width="2400" height="1340" fetchpriority="high" decoding="async" />
+      </picture>
+      <video muted loop playsinline preload="none" disablepictureinpicture tabindex="-1">
+        <source media="(prefers-color-scheme: dark)" src="/video/glass-night.webm" type="video/webm" />
+        <source media="(prefers-color-scheme: dark)" src="/video/glass-night.mp4" type="video/mp4" />
+        <source src="/video/glass-day.webm" type="video/webm" />
+        <source src="/video/glass-day.mp4" type="video/mp4" />
+      </video>
+      <div class="sheen"></div>
     </div>
-  </section>
 
-  <Marquee items={['Product strategy', 'Discovery', 'Shipping', 'Side projects', 'Writing', 'Experiments']} />
+    <main class="stage">
+      <script is:inline>
+        // Play the "writing on the wall" intro once per visit, not every time you come back.
+        (function (el) {
+          try { if (sessionStorage.getItem('wall-seen')) return; sessionStorage.setItem('wall-seen', '1'); } catch (e) {}
+          el.classList.add('play');
+        })(document.currentScript.parentElement);
+      </script>
 
-  <section>
-    <div class="head"><h2>Case studies</h2><a class="eyebrow" href="/work/">All work →</a></div>
-    <WorkList items={work} />
-  </section>
+      <div class="ghosts" aria-hidden="true">
+        <span class="g g1">Q3 bets??</span>
+        <span class="g g2">who is it for → why now</span>
+        <span class="g g3">ship it ✓</span>
+      </div>
 
-  <section>
-    <div class="head"><h2>Writing</h2><a class="eyebrow" href="/writing/">All posts →</a></div>
-    <PostList posts={posts} />
-  </section>
+      <section class="intro ink">
+        <p class="kicker">product manager · builder · writer</p>
+        <h1><span class="w" style="--d:0">{SITE_TITLE}</span></h1>
+        <p class="tag">
+          <span class="w" style="--d:1">I turn <span class="circled">messy problems<svg viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M18 44C20 20 90 8 160 9s132 10 134 33c2 24-80 33-150 32S8 66 12 40c3-15 40-24 70-26" /></svg></span> into</span>
+          <span class="w" style="--d:2">products people <u>actually use.</u></span>
+        </p>
+        <p class="now"><span class="w" style="--d:3"><b>now:</b> {NOW.replace(/\.$/, '')}</span></p>
+      </section>
+
+      <div class="ink say">
+        <p class="w" style="--d:5">say hi →</p>
+        <ul>
+          <li><a href={LINKS.email}>email</a></li>
+          <li><a href={LINKS.linkedin}>linkedin</a></li>
+          <li><a href={LINKS.github}>github</a></li>
+          <li><a href="/rss.xml">rss</a></li>
+        </ul>
+      </div>
+
+      <figure class="sketch ink" aria-hidden="true">
+        <svg viewBox="0 0 320 260">
+          <path class="axis" pathLength="1" d="M40 236c0-60 2-150-2-214M38 22c-6 8-10 14-14 22M38 22c5 7 9 14 12 22" />
+          <path class="axis" pathLength="1" d="M38 236c80 2 170-1 266 2M304 238c-8-6-15-10-22-13M304 238c-8 5-15 9-22 12" />
+          <path class="axis" pathLength="1" d="M172 40c1 62-1 130 2 190M44 132c80-3 170 1 252-2" />
+          <path class="ring" pathLength="1" d="M66 92c-6-30 30-46 66-40s48 34 30 52-74 22-92 2c-8-8-10-18-2-30" />
+          <path class="dot" pathLength="1" d="M240 104l10 10M250 104l-10 10M236 176l10 10M246 176l-10 10M96 190l10 10M106 190l-10 10" />
+          <path class="dot hot" pathLength="1" d="M98 70l12 12M110 70l-12 12" />
+        </svg>
+        <span class="k k-y">impact</span>
+        <span class="k k-x">effort</span>
+        <span class="k k-q">quick wins!</span>
+        <span class="k k-me">← this site</span>
+      </figure>
+
+      <section class="cluster who" aria-labelledby="h-who">
+        <h2 id="h-who" class="ink head"><span class="w" style="--d:3">start here</span></h2>
+        <div class="notes">
+          <a class="note hero tangerine" href="/about/" style="--r:-3deg; --i:0" transition:name={SECTION_NOTES.about.name} data-note data-astro-prefetch draggable="false">
+            <span class="paper">
+              <span class="label">01 · about</span>
+              <span class="title">Hi, I'm Ryan</span>
+              <span class="line">the bio, how I work &amp; how to reach me</span>
+            </span>
+          </a>
+        </div>
+      </section>
+
+      <section class="cluster built" aria-labelledby="h-built">
+        <h2 id="h-built" class="ink head"><span class="w" style="--d:2">built + shipped</span></h2>
+        <div class="notes">
+          <a class="note big white" href="/work/" style="--r:2deg; --i:1" transition:name={SECTION_NOTES.work.name} data-note data-astro-prefetch draggable="false">
+            <span class="paper">
+              <span class="label">02 · work</span>
+              <span class="title">Case studies</span>
+              <span class="line">side projects &amp; stories from the day job</span>
+            </span>
+          </a>
+          <div class="stack">
+            {work.map((item, i) => {
+              const n = itemNote('work', item.id, item.data.kind);
+              return (
+                <a class:list={['note small', n.tone]} href={`/work/${item.id}/`} style={`--r:${i ? 4 : -5}deg; --i:${2 + i}`} transition:name={n.name} data-note data-astro-prefetch draggable="false">
+                  <span class="paper">
+                    <span class="label">{item.data.kind === 'personal' ? 'side project' : 'day job'}</span>
+                    <span class="line">{item.data.title}</span>
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section class="cluster thinking" aria-labelledby="h-thinking">
+        <h2 id="h-thinking" class="ink head"><span class="w" style="--d:4">thinking out loud</span></h2>
+        <div class="notes">
+          <a class="note big blue" href="/writing/" style="--r:-1.5deg; --i:4" transition:name={SECTION_NOTES.writing.name} data-note data-astro-prefetch draggable="false">
+            <span class="paper">
+              <span class="label">03 · writing</span>
+              <span class="title">Writing</span>
+              <span class="line">notes from the product trenches</span>
+            </span>
+          </a>
+          {post && (() => {
+            const n = itemNote('writing', post.id);
+            return (
+              <a class:list={['note small', n.tone]} href={`/writing/${post.id}/`} style="--r:5deg; --i:5" transition:name={n.name} data-note data-astro-prefetch draggable="false">
+                <span class="paper">
+                  <span class="label">latest post</span>
+                  <span class="line">{post.data.title}</span>
+                </span>
+              </a>
+            );
+          })()}
+        </div>
+      </section>
+    </main>
+  </div>
 </Base>
+
+<script>
+  import { navigate } from 'astro:transitions/client';
+
+  const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const KEY = 'wall-notes';
+  const load = (): Record<string, [number, number]> => { try { return JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch { return {}; } };
+  const save = (pos: Record<string, [number, number]>) => { try { sessionStorage.setItem(KEY, JSON.stringify(pos)); } catch {} };
+
+  function setup() {
+    const wall = document.querySelector<HTMLElement>('[data-wall]');
+    if (!wall) return;
+    const pos = load();
+
+    // Ambient loop: desktop only, and never when the visitor asked for less motion.
+    const video = wall.querySelector('video');
+    if (video && !still() && matchMedia('(min-width: 900px)').matches) {
+      video.preload = 'auto';
+      video.addEventListener('playing', () => video.classList.add('on'), { once: true });
+      video.play().catch(() => {});
+    }
+
+    // The glass sits a little behind the notes: nudge it against the pointer for depth.
+    if (!still()) {
+      wall.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        wall.style.setProperty('--px', (e.clientX / innerWidth - 0.5).toFixed(3));
+        wall.style.setProperty('--py', (e.clientY / innerHeight - 0.5).toFixed(3));
+      });
+    }
+
+    wall.querySelectorAll<HTMLAnchorElement>('[data-note]').forEach((note) => {
+      const href = note.getAttribute('href')!;
+      let [dx, dy] = pos[href] || [0, 0];
+      const place = () => { note.style.setProperty('--dx', `${dx}px`); note.style.setProperty('--dy', `${dy}px`); };
+      place();
+
+      // Mouse and pen can drag notes around the glass. A press without a drag is a grab.
+      let start: { x: number; y: number; dx: number; dy: number; t: number } | null = null;
+      let dragged = false;
+      let lastX = 0;
+      note.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch' || e.button !== 0) return;
+        start = { x: e.clientX, y: e.clientY, dx, dy, t: 0 };
+        lastX = e.clientX;
+        dragged = false;
+      });
+      note.addEventListener('pointermove', (e) => {
+        if (!start) return;
+        const mx = e.clientX - start.x, my = e.clientY - start.y;
+        if (!dragged && Math.hypot(mx, my) < 6) return;
+        if (!dragged) { dragged = true; note.setPointerCapture(e.pointerId); note.classList.add('dragging'); }
+        dx = start.dx + mx; dy = start.dy + my;
+        // Swing with the drag like a real note held by one corner.
+        const swing = Math.max(-14, Math.min(14, (e.clientX - lastX) * 0.9));
+        lastX = e.clientX;
+        note.style.setProperty('--swing', `${swing}deg`);
+        place();
+      });
+      const drop = () => {
+        if (!start) return;
+        start = null;
+        if (!dragged) return;
+        note.classList.remove('dragging');
+        note.style.setProperty('--swing', '0deg');
+        note.classList.remove('stuck'); void note.offsetWidth; note.classList.add('stuck');
+        pos[href] = [dx, dy]; save(pos);
+      };
+      note.addEventListener('pointerup', drop);
+      note.addEventListener('pointercancel', drop);
+
+      note.addEventListener('click', (e) => {
+        if (dragged) { e.preventDefault(); dragged = false; return; }
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        if (still()) { navigate(href); return; }
+        grab(note, href);
+      });
+    });
+  }
+
+  // Grabbing a note: it peels off the glass and swells to fill the screen. The page then
+  // begins inside it: the full-screen paper carries the note's transition name, so the view
+  // transition shrinks it into the new page's header while the page fades in around it.
+  function grab(note: HTMLAnchorElement, href: string) {
+    const name = getComputedStyle(note).viewTransitionName;
+    const paper = note.querySelector<HTMLElement>('.paper')!;
+    const box = note.getBoundingClientRect();
+    const w = paper.offsetWidth, h = paper.offsetHeight;
+    const x = box.left + box.width / 2 - w / 2, y = box.top + box.height / 2 - h / 2;
+    const r = getComputedStyle(note).rotate;
+
+    // The cover is the note itself, unscaled, so its words stay crisp while it grows.
+    const cover = document.createElement('div');
+    cover.className = `wall-cover ${[...note.classList].find((c) => ['tangerine', 'white', 'blue'].includes(c))}`;
+    cover.innerHTML = paper.innerHTML;
+    document.body.append(cover);
+    note.style.visibility = 'hidden';
+    const fromBox = { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px`, rotate: r === 'none' ? '0deg' : r };
+    const grow = cover.animate(
+      [
+        { ...fromBox, boxShadow: '0 8px 14px -6px rgb(35 15 25 / 0.35)' },
+        { ...fromBox, rotate: '0deg', scale: '1.06', boxShadow: '0 40px 50px -20px rgb(35 15 25 / 0.5)', offset: 0.3 },
+        { left: '0px', top: '0px', width: `${innerWidth}px`, height: `${innerHeight}px`, rotate: '0deg', scale: '1', boxShadow: '0 0 0 0 rgb(35 15 25 / 0)' },
+      ],
+      { duration: 520, easing: 'cubic-bezier(.7,0,.2,1)', fill: 'forwards' },
+    );
+    grow.finished.then(() => {
+      // Leave the paper behind the cover too, so the new page fades in on the note, not the wall.
+      const backdrop = cover.cloneNode() as HTMLElement;
+      backdrop.style.cssText = 'inset: 0; z-index: 49';
+      document.body.append(backdrop);
+      note.style.viewTransitionName = 'none';
+      cover.style.viewTransitionName = name;
+      navigate(href);
+    });
+  }
+
+  document.addEventListener('astro:page-load', setup);
+</script>
+
 <style>
-  .hero { padding: 2rem 0 1rem; }
-  .hero h1 { font-size: clamp(2.8rem, 6.5vw, 5.6rem); max-width: 15.5ch; }
-  .scribble { position: relative; white-space: nowrap; }
-  .scribble::after {
-    content: ''; position: absolute; left: -2%; right: -2%; bottom: 0.02em; height: 0.28em; z-index: -1;
-    background: var(--tangerine); border-radius: 0.2em; transform: rotate(-1.5deg) scaleX(0); transform-origin: left;
-    animation: swipe 0.7s 0.4s cubic-bezier(.6,0,.2,1) forwards; opacity: 0.85;
+  /* ---------- the glass ---------- */
+  .wall {
+    --ink: var(--cherry);
+    --ink-2: var(--tangerine);
+    --ink-red: var(--brick);
+    --wash: color-mix(in oklab, var(--blue) 46%, transparent);
+    --px: 0; --py: 0;
+    position: relative; min-height: 100svh; overflow: clip; color: var(--ink);
   }
-  .scribble { isolation: isolate; }
-  @keyframes swipe { to { transform: rotate(-1.5deg) scaleX(1); } }
-  .lede { font-size: 1.3rem; max-width: 34rem; }
-  .ctas { display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 2rem; }
-  .btn {
-    display: inline-block; padding: 0.85rem 1.5rem; border: 3px solid var(--line); border-radius: 999px;
-    font: 700 1.05rem var(--display); text-decoration: none; box-shadow: 4px 4px 0 var(--line); transition: 0.2s;
+  @media (prefers-color-scheme: dark) {
+    .wall { --ink: #f3fbff; --ink-2: var(--tangerine); --ink-red: var(--tangerine); --wash: rgb(28 10 20 / 0.28); }
   }
-  .btn.primary { background: var(--tangerine); color: var(--cherry); border-color: var(--cherry); box-shadow: 4px 4px 0 var(--cherry); }
-  .btn:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--line); }
-  .btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--line); }
-  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 4.5rem 0 1.75rem; }
-  .head h2 { margin: 0; }
-  .head .eyebrow { margin: 0; text-decoration: none; }
-  .head .eyebrow:hover { color: var(--tangerine); }
+  .glass { position: fixed; inset: -24px; z-index: 0; pointer-events: none; }
+  .glass picture, .glass img, .glass video {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+    transform: translate(calc(var(--px) * -18px), calc(var(--py) * -12px));
+    transition: transform 1.2s cubic-bezier(.2,.7,.2,1);
+  }
+  .glass img, .glass video { filter: saturate(0.8); }
+  .glass video { opacity: 0; transition: opacity 1.2s, transform 1.2s cubic-bezier(.2,.7,.2,1); }
+  .glass video:global(.on) { opacity: 1; }
+  /* The glass itself: a faint wash so the ink reads, plus two long reflections. */
+  .sheen {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(112deg, transparent 12%, rgb(255 255 255 / 0.07) 20%, transparent 30%),
+      var(--wash);
+  }
+
+  /* Last session's marker, not quite wiped off. */
+  .ghosts { position: absolute; inset: 0; pointer-events: none; }
+  .g { position: absolute; font: 400 clamp(1.4rem, 2.6cqw, 2.6rem) var(--marker); color: var(--ink); opacity: 0.2; white-space: nowrap;
+       mask-image: linear-gradient(100deg, #000 55%, rgb(0 0 0 / 0.35) 70%, #000 85%); }
+  .g1 { left: 37%; top: 3%; rotate: -5deg; font-size: clamp(1.8rem, 3.2cqw, 3.2rem); }
+  .g2 { left: 18%; top: 60%; rotate: 2deg; }
+  .g3 { left: 64%; top: 47%; rotate: -8deg; }
+
+  /* ---------- the stage: three clusters of notes around the intro ---------- */
+  .stage {
+    position: relative; z-index: 1; min-height: max(100svh, 44rem);
+    display: grid; gap: 0 3.5vw; padding: 5.5vh 4.5vw 4vh;
+    grid-template-columns: 1.15fr 0.85fr 1.3fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 'intro who built' 'say sketch thinking';
+    container-type: inline-size;
+  }
+  .intro { grid-area: intro; position: relative; }
+  .who { grid-area: who; align-self: start; margin-left: -6cqw; padding-top: 4cqw; position: relative; z-index: 2; }
+  .say { grid-area: say; align-self: end; margin-bottom: 1.5rem; }
+  .built { grid-area: built; }
+  .thinking { grid-area: thinking; align-self: end; padding-left: 4cqw; }
+  .built .stack { margin-left: -3.5cqw; position: relative; z-index: 1; }
+  .thinking .small { margin-left: -3cqw; margin-top: 3cqw; }
+
+  .sketch { grid-area: sketch; position: relative; align-self: end; justify-self: center; margin: 2rem 0 1.5rem; width: min(80%, 16rem); }
+  .sketch svg { display: block; width: 100%; height: auto; overflow: visible; stroke: var(--ink); stroke-width: 3; }
+  .sketch .ring, .sketch .hot { stroke: var(--ink-2); stroke-width: 3.5; }
+  .k { position: absolute; font: 700 1.25rem/1 var(--hand); white-space: nowrap; }
+  .k-y { left: -2.6rem; top: 38%; rotate: -90deg; }
+  .k-x { right: 0; bottom: -1.8rem; }
+  .k-q { left: 18%; top: -0.6rem; color: var(--ink-red); rotate: -4deg; }
+  .k-me { left: 57%; top: 17%; font-size: 1.1rem; rotate: 3deg; }
+
+  /* ---------- ink: marker on glass ---------- */
+  .ink { color: var(--ink); }
+  .kicker { margin: 0 0 0.6rem; font: 500 0.75rem var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+  .intro h1 {
+    margin: 0; font: 400 clamp(3rem, 7.4cqw, 7.4rem)/0.95 var(--marker); letter-spacing: -0.01em; rotate: -2deg;
+    transform-origin: left;
+  }
+  .tag { margin: 1.4rem 0 0; max-width: 21ch; font: 700 clamp(1.6rem, 2.35cqw, 2.5rem)/1.1 var(--hand); }
+  .tag .w { display: block; white-space: nowrap; }
+  .tag u { text-decoration: none; background: linear-gradient(transparent 62%, color-mix(in oklab, var(--ink-2) 75%, transparent) 62% 90%, transparent 90%); }
+  .circled { position: relative; white-space: nowrap; }
+  .circled { padding: 0 0.3em; }
+  .circled svg { position: absolute; left: -6%; top: -22%; width: 112%; height: 145%; overflow: visible; }
+  .now { margin: 1.6rem 0 0; font: 600 clamp(1.25rem, 1.6cqw, 1.6rem)/1.2 var(--hand); }
+  .now b { font-weight: 800; color: var(--ink-red); }
+  .head { margin: 0 0 1.4rem; font: 400 clamp(1.5rem, 2.2cqw, 2.3rem)/1 var(--marker); letter-spacing: 0; }
+  .head .w { display: inline-block; padding-bottom: 0.35rem; background: linear-gradient(var(--ink-2), var(--ink-2)) left bottom / 100% 0.14em no-repeat; rotate: -1.5deg; }
+  svg { fill: none; stroke: var(--ink-2); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+  svg path { vector-effect: non-scaling-stroke; }
+  .say { align-self: center; font: 700 1.6rem/1.15 var(--hand); }
+  .say p { margin: 0 0 0.4rem; color: var(--ink-red); }
+  .say ul { list-style: none; margin: 0; padding: 0; }
+  .say a { text-decoration-color: var(--ink-2); text-decoration-thickness: 2px; }
+
+  /* ---------- the notes ---------- */
+  .notes { display: flex; align-items: flex-start; gap: 2.4cqw; }
+  .stack { display: flex; flex-direction: column; gap: 1.6cqw; padding-top: 2.5cqw; }
+  .note {
+    --paper: var(--note-white); --dx: 0px; --dy: 0px; --swing: 0deg; --lift: 0;
+    position: relative; display: block; flex: none; color: var(--cherry); text-decoration: none;
+    view-transition-class: note; perspective: 900px; touch-action: auto; cursor: grab; user-select: none; -webkit-user-drag: none;
+    translate: var(--dx) var(--dy); rotate: calc(var(--r) + var(--swing));
+    transition: rotate 0.5s cubic-bezier(.3,1.6,.5,1), scale 0.35s cubic-bezier(.3,1.6,.5,1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .note.tangerine { --paper: var(--note-tangerine); }
+  .note.blue { --paper: var(--note-blue); }
+  .hero { width: clamp(13rem, 24cqw, 23rem); }
+  .big { width: clamp(11rem, 17cqw, 17.5rem); }
+  .hero .title { font-size: clamp(2rem, 3.6cqw, 3.5rem); }
+  .hero .line { font-size: clamp(1.25rem, 1.9cqw, 1.9rem); }
+  /* A strip of tape: this is the note to grab first. */
+  .hero .paper::after {
+    content: ''; position: absolute; top: -0.9rem; left: 50%; width: 38%; height: 1.8rem; translate: -50% 0; rotate: -4deg;
+    background: var(--grain), rgb(255 255 255 / 0.45); box-shadow: 0 1px 2px rgb(35 15 25 / 0.15);
+  }
+  .small { width: clamp(8.5rem, 12cqw, 12.5rem); }
+  .paper {
+    position: relative; display: flex; flex-direction: column; aspect-ratio: 1; padding: 11% 10% 10%;
+    border-radius: 2px 2px 4px 4px;
+    background:
+      var(--grain),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.1) 0 17%, transparent 17%),
+      linear-gradient(to bottom, transparent 55%, color-mix(in oklab, var(--paper) 86%, var(--cherry))),
+      var(--paper);
+    /* Stuck along the top edge, so the bottom lifts off the glass and casts the shadow. */
+    transform-origin: 50% 0; transform: rotateX(calc(var(--lift) * 24deg));
+    box-shadow:
+      0 1px 1px rgb(35 15 25 / 0.18),
+      0 calc(8px + var(--lift) * 22px) calc(12px + var(--lift) * 26px) calc(-6px + var(--lift) * 2px) rgb(35 15 25 / calc(0.35 + var(--lift) * 0.15));
+    transition: transform 0.45s cubic-bezier(.3,1.6,.5,1), box-shadow 0.45s;
+  }
+  .note:hover, .note:focus-visible { --lift: 0.55; }
+  .note:focus-visible { outline: none; }
+  .note:focus-visible .paper { outline: 3px solid var(--tangerine); outline-offset: 5px; }
+  .note.blue:focus-visible .paper, .note.white:focus-visible .paper { outline-color: var(--ink); }
+  .note.dragging { --lift: 0.9; cursor: grabbing; z-index: 5; scale: 1.06; transition: rotate 0.12s linear, scale 0.25s; }
+  .note:global(.stuck) .paper { animation: stick 0.45s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes stick { 0% { transform: rotateX(20deg) scale(1.04); } 60% { transform: rotateX(-3deg) scale(0.99); } }
+  .note:global(.grabbed) { z-index: 6; --lift: 1; rotate: 0deg; scale: 1.08; transition: rotate 0.28s cubic-bezier(.7,0,.2,1), scale 0.28s cubic-bezier(.7,0,.2,1); }
+
+  :global(.wall-cover) {
+    --paper: var(--note-white);
+    position: fixed; z-index: 50; pointer-events: none; view-transition-class: note;
+    display: flex; flex-direction: column; padding: 7cqmin; color: var(--cherry); container-type: size;
+    background: var(--grain), var(--paper);
+  }
+  :global(div.wall-cover .label) { font: 600 0.75rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  :global(div.wall-cover .title) { margin-top: auto; font: 400 min(15cqw, 6rem)/1 var(--marker); }
+  :global(div.wall-cover .line) { margin-top: 0.6rem; font: 700 min(8cqw, 2.2rem)/1.1 var(--hand); }
+  :global(.wall-cover.tangerine) { --paper: var(--note-tangerine); }
+  :global(.wall-cover.blue) { --paper: var(--note-blue); }
+
+  .label { font: 600 0.75rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .title { margin-top: auto; font: 400 clamp(1.55rem, 2.4cqw, 2.45rem)/1 var(--marker); }
+  .line { margin-top: 0.5rem; font: 700 clamp(1.1rem, 1.45cqw, 1.5rem)/1.05 var(--hand); }
+  .small .line { margin-top: auto; font-size: clamp(1.15rem, 1.5cqw, 1.55rem); }
+
+  /* ---------- intro: ink is written on, notes are slapped on (first visit only) ---------- */
+  .play .w { animation: write 0.9s calc(0.25s + var(--d) * 0.32s) cubic-bezier(.6,0,.3,1) backwards; }
+  @keyframes write { from { clip-path: inset(-20% 100% -20% 0); } to { clip-path: inset(-20% -2% -20% 0); } }
+  svg path { stroke-dasharray: 1; }
+  .play .circled path { animation: draw 0.8s 1.3s cubic-bezier(.6,0,.3,1) backwards; }
+  @keyframes draw { from { stroke-dashoffset: 1; } }
+  .play .sketch path { animation: draw 0.7s calc(1.4s + var(--n, 0) * 0.15s) cubic-bezier(.6,0,.3,1) backwards; }
+  .play .sketch .k { animation: write 0.6s 2.4s cubic-bezier(.6,0,.3,1) backwards; }
+  .play .note .paper { animation: slap 0.6s calc(0.7s + var(--i) * 0.12s) cubic-bezier(.3,1.6,.5,1) backwards; }
+  @keyframes slap { from { opacity: 0; transform: translateY(-14px) scale(1.18) rotateX(30deg); box-shadow: 0 40px 40px -10px rgb(35 15 25 / 0.2); } }
+
+  /* ---------- narrow screens: the wall scrolls ---------- */
+  @media (max-width: 899px) {
+    .stage {
+      grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: 'intro' 'who' 'built' 'thinking' 'say';
+      gap: 3.25rem; padding: 2.5rem 1.25rem 4rem;
+    }
+    .thinking { padding-left: 0; }
+    .intro h1 { font-size: clamp(2.9rem, 14vw, 4.5rem); }
+    .tag { font-size: clamp(1.7rem, 8vw, 2.3rem); }
+    .now { font-size: 1.35rem; }
+    .sketch, .ghosts { display: none; }
+    .who { margin-left: 0; padding-top: 0; }
+    .hero { width: min(72vw, 18rem); }
+    .built .stack, .thinking .small { margin-left: 0; margin-top: 0; }
+    .head { font-size: 1.7rem; margin-bottom: 1.2rem; }
+    .notes { gap: 5vw; flex-wrap: wrap; }
+    .big { width: min(50vw, 15rem); }
+    .small { width: min(40vw, 11rem); }
+    .stack { flex-direction: row; gap: 5vw; padding-top: 0; }
+    .title { font-size: clamp(1.5rem, 7.5vw, 2.2rem); }
+    .line, .small .line { font-size: clamp(1.15rem, 5.2vw, 1.45rem); }
+    .label { font-size: 0.66rem; }
+  }
 </style>

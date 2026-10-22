@@ -1,17 +1,21 @@
 ---
 import Base from '../../layouts/Base.astro';
 import WorkList from '../../components/WorkList.astro';
+import NoteHead from '../../components/NoteHead.astro';
 import { getCaseStudies } from '../../utils';
+import { SECTION_NOTES } from '../../notes';
 const all = await getCaseStudies();
 const personal = all.filter((i) => i.data.kind === 'personal');
 const professional = all.filter((i) => i.data.kind === 'professional');
 ---
 <Base title="Work" description="Case studies from personal projects and professional work.">
-  <h1>Things I've <span class="hl">built</span> and <span class="hl">shipped.</span></h1>
-  <p class="lede muted">
-    Side projects I've made on my own, and abstracted stories from my day job.
-    Professional case studies leave out company names and confidential details.
-  </p>
+  <NoteHead {...SECTION_NOTES.work} label="case studies">
+    <h1>Things I've <span class="hl">built</span> and <span class="hl">shipped.</span></h1>
+    <p class="lede muted">
+      Side projects I've made on my own, and abstracted stories from my day job.
+      Professional case studies leave out company names and confidential details.
+    </p>
+  </NoteHead>
   <h2>Personal projects</h2>
   <WorkList items={personal} />
   <h2>Professional</h2>

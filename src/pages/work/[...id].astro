@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Article from '../../layouts/Article.astro';
 import { getCaseStudies } from '../../utils';
+import { itemNote } from '../../notes';
 
 export async function getStaticPaths() {
   const items = await getCaseStudies();
@@ -23,6 +24,7 @@ const meta = [
   eyebrow={d.kind === 'personal' ? 'Personal project' : 'Professional case study'}
   meta={meta}
   back={{ href: "/work/", label: "All work" }}
+  note={{ ...itemNote('work', item.id, d.kind), label: 'case study' }}
 >
   <Content />
   {d.link && <p><a href={d.link}>See the project →</a></p>}

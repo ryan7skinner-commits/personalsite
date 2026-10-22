@@ -1,0 +1,41 @@
+---
+// The sticky note from the homepage wall, grown into a page header. The shared
+// transition name makes the note on the wall morph into this header (and back).
+import type { Tone } from '../notes';
+interface Props { name: string; tone: Tone; label: string; back?: { href: string; label: string }; }
+const { name, tone, label, back = { href: '/', label: 'back to the wall' } } = Astro.props;
+---
+<header class:list={['note-head', tone]} transition:name={name}>
+  <p class="pin"><a href={back.href}>← {back.label}</a><span>{label}</span></p>
+  <slot />
+</header>
+<style>
+  .note-head {
+    --paper: var(--note-white);
+    position: relative; margin: 0 0 3rem; view-transition-class: note; padding: clamp(1.5rem, 4vw, 2.75rem) clamp(1.25rem, 4vw, 3rem) clamp(1.75rem, 4vw, 3rem);
+    color: var(--cherry); border-radius: 3px 3px 6px 6px;
+    background:
+      var(--grain),
+      linear-gradient(to bottom, color-mix(in oklab, var(--paper) 88%, #fff) 0 2.4rem, transparent 2.4rem),
+      linear-gradient(to bottom, transparent 60%, color-mix(in oklab, var(--paper) 90%, var(--cherry))),
+      var(--paper);
+    box-shadow: 0 1px 1px rgb(53 30 40 / 0.12), 0 18px 28px -16px rgb(53 30 40 / 0.45);
+    max-width: 44rem; rotate: -1.2deg;
+    animation: settle 0.9s 0.15s cubic-bezier(.3,1.6,.5,1) backwards;
+  }
+  .tangerine { --paper: var(--note-tangerine); }
+  .blue { --paper: var(--note-blue); box-shadow: 0 0 0 2px var(--cherry), 0 18px 28px -16px rgb(53 30 40 / 0.5); }
+  @keyframes settle { from { rotate: 0deg; } }
+  .pin {
+    display: flex; justify-content: space-between; gap: 1rem; margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
+    font: 500 0.75rem var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .pin a { text-decoration-color: currentColor; }
+  .pin span { font: 400 1.5rem/0.8 var(--marker); text-transform: none; letter-spacing: 0; }
+  .note-head :global(h1) { color: var(--cherry); }
+  .note-head :global(.hl) { color: inherit; text-decoration: underline wavy var(--cherry) 0.06em; text-underline-offset: 0.12em; }
+  .note-head:not(.tangerine) :global(.hl) { text-decoration-color: var(--tangerine); }
+  .note-head :global(.lede), .note-head :global(.muted) { color: var(--cherry); }
+  .note-head :global(.lede) { margin-bottom: 0; }
+  .note-head :global(a) { text-decoration-color: currentColor; }
+</style>
