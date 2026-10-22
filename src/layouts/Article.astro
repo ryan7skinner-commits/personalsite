@@ -1,6 +1,8 @@
 ---
 import Base from './Base.astro';
+import NoteHead from '../components/NoteHead.astro';
 import { formatDate } from '../utils';
+import type { Tone } from '../notes';
 
 interface Props {
   title: string;
@@ -11,13 +13,15 @@ interface Props {
   eyebrow?: string;
   back?: { href: string; label: string };
   meta?: { label: string; value: string }[];
+  note?: { name: string; tone: Tone; label: string };
 }
-const { title, description, date, updated, tags = [], eyebrow, back, meta = [] } = Astro.props;
+const { title, description, date, updated, tags = [], eyebrow, back, meta = [], note } = Astro.props;
 ---
 <Base title={title} description={description}>
   <article>
-    <header class="head">
-      {back && <a class="eyebrow back" href={back.href}>← {back.label}</a>}
+    {note ? (
+      <NoteHead {...note} back={back}>
+        <div class="head in-note">
       {eyebrow && <p class="eyebrow">{eyebrow}</p>}
       <h1>{title}</h1>
       <p class="lede">{description}</p>
@@ -31,12 +35,34 @@ const { title, description, date, updated, tags = [], eyebrow, back, meta = [] }
         </dl>
       )}
       {tags.length > 0 && <p>{tags.map((t) => <span class="chip">{t}</span>)}</p>}
-    </header>
+        </div>
+      </NoteHead>
+    ) : (
+    <header class="head">
+        {back && <a class="eyebrow back" href={back.href}>← {back.label}</a>}
+        {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+        <h1>{title}</h1>
+        <p class="lede">{description}</p>
+        <p class="eyebrow muted">
+          <time datetime={date.toISOString()}>{formatDate(date)}</time>
+          {updated && <span> · updated {formatDate(updated)}</span>}
+        </p>
+        {meta.length > 0 && (
+          <dl class="meta">
+            {meta.map((m) => (<div><dt class="eyebrow">{m.label}</dt><dd>{m.value}</dd></div>))}
+          </dl>
+        )}
+        {tags.length > 0 && <p>{tags.map((t) => <span class="chip">{t}</span>)}</p>}
+      </header>
+    )}
     <div class="prose"><slot /></div>
   </article>
 </Base>
 <style>
   .head { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 3px solid var(--line); }
+  .in-note { margin: 0; padding: 0; border: 0; }
+  .in-note .meta div { background: var(--cherry); color: var(--blue); }
+  .in-note .chip { border-color: var(--cherry); }
   .back { display: inline-block; margin-bottom: 2rem; text-decoration: none; }
   .back:hover { color: var(--tangerine); }
   .head h1 { font-size: clamp(2.6rem, 6vw, 4.8rem); max-width: 18ch; }

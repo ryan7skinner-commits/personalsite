@@ -1,12 +1,16 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PostList from '../../components/PostList.astro';
+import NoteHead from '../../components/NoteHead.astro';
 import { getPosts } from '../../utils';
+import { SECTION_NOTES } from '../../notes';
 const posts = await getPosts();
 ---
 <Base title="Writing" description="Posts on product management, building things, and lessons learned.">
-  <h1>Notes from the <span class="hl">product trenches.</span></h1>
-  <p class="lede muted">How I think about product, building things, and what I'm learning along the way. Also on <a href="/rss.xml">RSS</a>.</p>
+  <NoteHead {...SECTION_NOTES.writing} label="writing">
+    <h1>Notes from the <span class="hl">product trenches.</span></h1>
+    <p class="lede muted">How I think about product, building things, and what I'm learning along the way. Also on <a href="/rss.xml">RSS</a>.</p>
+  </NoteHead>
   <PostList posts={posts} />
 </Base>
-<style>.lede { font-size: 1.2rem; max-width: 36rem; margin-bottom: 3rem; }</style>
+<style>.lede { font-size: 1.2rem; max-width: 36rem; }</style>

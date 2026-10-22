@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
+import NoteHead from '../components/NoteHead.astro';
 import { LINKS } from '../consts';
+import { SECTION_NOTES } from '../notes';
 const principles = [
   { t: 'Placeholder principle', d: 'One or two sentences on something you believe about building products.' },
   { t: 'Another principle', d: 'How it shows up in the way you work with teams.' },
@@ -8,7 +10,9 @@ const principles = [
 ];
 ---
 <Base title="About" description="About Ryan Skinner, Product Manager.">
-  <h1>A bit about <span class="hl">me.</span></h1>
+  <NoteHead {...SECTION_NOTES.about} label="hi, I'm Ryan">
+    <h1>A bit about <span class="hl">me.</span></h1>
+  </NoteHead>
   <div class="prose">
     <p>
       Placeholder: a few paragraphs on who you are, the kinds of products and teams you've worked

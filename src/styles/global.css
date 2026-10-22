@@ -1,5 +1,7 @@
 @import '@fontsource-variable/bricolage-grotesque';
 @import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource/permanent-marker';
+@import '@fontsource-variable/caveat';
 
 /* Brand palette */
 :root {
@@ -18,6 +20,14 @@
   --display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --body: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --mono: 'JetBrains Mono Variable', ui-monospace, Menlo, monospace;
+  --marker: 'Permanent Marker', 'Comic Sans MS', cursive;
+  --hand: 'Caveat Variable', 'Comic Sans MS', cursive;
+  /* Sticky notes: paper colours, grain and the soft lift shadow of paper on glass */
+  --note-tangerine: var(--tangerine);
+  --brick: #8e2f2a;
+  --note-white: #fffdf8;
+  --note-blue: var(--blue);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --radius: 18px;
   --shadow: 6px 6px 0 var(--line);
   color-scheme: light;
@@ -69,6 +79,17 @@ hr { border: 0; border-top: 2px solid var(--line); margin: 3rem 0; }
 .chip.solid { background: var(--tangerine); color: var(--cherry); border-color: var(--tangerine); }
 .prose { max-width: 40rem; }
 .prose p, .prose li { font-size: 1.08rem; }
+
+/* Notes on the homepage wall morph into page headers: give that move a weighty ease. */
+::view-transition-group(*) { animation-duration: 0.65s; animation-timing-function: cubic-bezier(.7,0,.2,1); }
+/* The paper stays solid while it shrinks; the header's words fade in on it near the end. */
+::view-transition-group(*.note) { z-index: 100; animation-timing-function: cubic-bezier(.25,.8,.25,1); }
+::view-transition-old(*.note) { animation: none; opacity: 1; height: 100%; }
+::view-transition-new(*.note) { animation: note-ink 0.65s cubic-bezier(.6,0,.4,1) both; }
+/* Notes with no partner on the other page just leave or arrive with the page. */
+::view-transition-old(*.note):only-child { animation: none; opacity: 0; }
+::view-transition-new(*.note):only-child { animation: -ua-view-transition-fade-in 0.35s 0.25s both; }
+@keyframes note-ink { 0%, 45% { opacity: 0; } 100% { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

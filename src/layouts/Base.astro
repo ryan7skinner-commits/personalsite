@@ -5,8 +5,9 @@ import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
 import SectionBar from '../components/SectionBar.astro';
 
-interface Props { title?: string; description?: string; }
-const { title, description } = Astro.props;
+// `wall` renders the page full-bleed with no sidebar: the homepage is its own navigation.
+interface Props { title?: string; description?: string; wall?: boolean; }
+const { title, description, wall = false } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -15,14 +16,18 @@ const { title, description } = Astro.props;
     <ClientRouter />
   </head>
   <body>
-    <Sidebar />
-    <div class="page">
-      <main>
-        <SectionBar />
-        <div transition:animate="slide"><slot /></div>
-      </main>
-      <Footer />
-    </div>
+    {wall ? <slot /> : (
+      <>
+        <Sidebar />
+        <div class="page">
+          <main>
+            <SectionBar />
+            <div transition:animate="slide"><slot /></div>
+          </main>
+          <Footer />
+        </div>
+      </>
+    )}
   </body>
 </html>
 <style>

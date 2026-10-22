@@ -17,6 +17,8 @@ const pos = i === -1 ? '00' : `0${i + 1}`;
     animation: grow 0.8s cubic-bezier(.7,0,.2,1) backwards;
     transform-origin: left;
   }
+  /* Pages headed by a note from the wall already say where you are. */
+  :global(main:has(.note-head)) .bar { display: none; }
   .pos { display: flex; align-items: center; gap: 0.45rem; white-space: nowrap; }
   .pos i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--cherry); }
   @keyframes grow { from { clip-path: inset(0 100% 0 0 round 999px); } to { clip-path: inset(0 0 0 0 round 999px); } }

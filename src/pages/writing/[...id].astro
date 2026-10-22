@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Article from '../../layouts/Article.astro';
 import { getPosts } from '../../utils';
+import { itemNote } from '../../notes';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -10,6 +11,6 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 ---
-<Article {...post.data} back={{ href: "/writing/", label: "All writing" }}>
+<Article {...post.data} back={{ href: "/writing/", label: "All writing" }} note={{ ...itemNote('writing', post.id), label: 'post' }}>
   <Content />
 </Article>

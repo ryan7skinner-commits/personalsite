@@ -82,6 +82,10 @@ const active = activeIndex(Astro.url.pathname);
   :global(::view-transition-group(sidebar)),
   :global(::view-transition-new(sidebar)) { animation: none; }
   :global(::view-transition-old(sidebar)) { animation: none; opacity: 0; }
+  /* Coming from (or going back to) the homepage wall, which has no sidebar: slide it in and out. */
+  :global(::view-transition-new(sidebar):only-child) { animation: sidebar-in 0.65s cubic-bezier(.7,0,.2,1); }
+  :global(::view-transition-old(sidebar):only-child) { animation: sidebar-in 0.5s cubic-bezier(.7,0,.2,1) reverse; opacity: 1; }
+  @keyframes sidebar-in { from { transform: translateX(-100%); } }
   .top { display: flex; align-items: center; gap: 0.8rem; }
   .brand { position: relative; flex: none; display: grid; place-items: center; width: 4.75rem; height: 4.75rem; text-decoration: none; color: var(--fg); }
   .badge { position: absolute; inset: 0; width: 100%; height: 100%; animation: spin 18s linear infinite; fill: var(--fg); font: 600 9.5px var(--mono); letter-spacing: 0.08em; }
